@@ -5,8 +5,15 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
+import csv
+from sqlalchemy import create_engine, types
 
 driver = webdriver.Chrome(ChromeDriverManager().install())
+
+# enter your password and database names here
+engine = create_engine('mysql://root:*Enter password here*@localhost/*Enter Databse name here*')
+
+
 
 products = []  # List to store card name
 prices = []  # List to store car price
@@ -70,3 +77,11 @@ record_data(page_num)
 df = pd.DataFrame({'Card Name': products, 'Number': card_nums, 'Rarity': rarities, 'Market Price (USD)': prices})
 df.sort_values(by='Market Price (USD)', ascending=False, inplace=True)
 df.to_csv('kaldheim-tcgplayer-data.csv', index=False, encoding='utf-8')
+
+df = pd.read_csv("kaldheim-tcgplayer-data.csv", sep=',', quotechar='\'', encoding='utf8')
+
+# Replace first argument with your sql table name
+df.to_sql('kaldheim_cardlist', con=engine, index=False, if_exists='replace')
+
+
+
